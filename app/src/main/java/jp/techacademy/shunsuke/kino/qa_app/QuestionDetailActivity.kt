@@ -4,6 +4,8 @@ import android.content.Intent
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.view.View
+import android.widget.ImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import jp.techacademy.shunsuke.kino.qa_app.databinding.ActivityQuestionDetailBinding
@@ -61,6 +63,18 @@ class QuestionDetailActivity : AppCompatActivity() {
         // ListViewの準備
         adapter = QuestionDetailListAdapter(this, question)
         binding.listView.adapter = adapter
+        // ログイン済みのユーザーを取得する
+            val user = FirebaseAuth.getInstance().currentUser
+            val favoriteImageView = findViewById<ImageView>(R.id.favoriteImageView)
+
+            if (user == null) {
+            // ログインしていなければお気に入りボタンを表示しない
+                favoriteImageView.visibility = View.GONE
+        } else {
+                // ログインしていればお気に入りボタンを表示させる
+                favoriteImageView.visibility = View.VISIBLE
+            }
+
         adapter.notifyDataSetChanged()
 
         binding.fab.setOnClickListener {
