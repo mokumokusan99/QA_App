@@ -17,6 +17,9 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var adapter: QuestionDetailListAdapter
     private lateinit var answerRef: DatabaseReference
 
+
+
+
     private val eventListener = object : ChildEventListener {
         override fun onChildAdded(dataSnapshot: DataSnapshot, s: String?) {
             val map = dataSnapshot.value as Map<*, *>
@@ -45,6 +48,8 @@ class QuestionDetailActivity : AppCompatActivity() {
         override fun onCancelled(databaseError: DatabaseError) {}
     }
 
+
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityQuestionDetailBinding.inflate(layoutInflater)
@@ -65,7 +70,7 @@ class QuestionDetailActivity : AppCompatActivity() {
         binding.listView.adapter = adapter
         // ログイン済みのユーザーを取得する
             val user = FirebaseAuth.getInstance().currentUser
-            val favoriteImageView = findViewById<ImageView>(R.id.favoriteImageView)
+            var favoriteImageView = findViewById<ImageView>(R.id.favoriteImageView)
 
             if (user == null) {
             // ログインしていなければお気に入りボタンを表示しない
@@ -94,6 +99,51 @@ class QuestionDetailActivity : AppCompatActivity() {
                 // --- ここまで ---
             }
         }
+/*
+        var isFavorite = false // お気に入りの状態を管理
+
+        // ★マークの初期表示を設定
+        favoriteImageView = findViewById(R.id.favoriteImageView)
+
+
+        // お気に入りボタンが押されたときの処理
+        binding.favoriteImageView.setOnClickListener {
+            // ログイン済みのユーザ情報を取得
+            val user = FirebaseAuth.getInstance().currentUser
+
+            // ログインしていない場合は何もしない
+            if (user == null) {
+                return@setOnClickListener
+            }
+
+            // お気に入り情報をFirebaseから取得
+            val favoriteRef = FirebaseDatabase.getInstance().reference
+                .child("favorites")
+                .child(user.uid) // ユーザーIDを指定する必要がある
+                .child("question_id")
+
+            favoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(dataSnapshot: DataSnapshot) {
+                    val isFavorite = dataSnapshot.exists()
+
+                    // お気に入り登録されていない場合は登録
+                    if (!isFavorite) {
+                        favoriteRef.setValue(true)
+                        favoriteImageView.setImageResource(R.drawable.ic_star)
+                    } else {
+                        // お気に入り登録済みの場合は削除
+                        favoriteRef.removeValue()
+                        favoriteImageView.setImageResource(R.drawable.ic_star_border)
+                    }
+                }
+
+                override fun onCancelled(databaseError: DatabaseError) {
+                    // エラー処理
+                }
+            })
+
+        }
+*/
 
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         answerRef = dataBaseReference.child(ContentsPATH).child(question.genre.toString())
