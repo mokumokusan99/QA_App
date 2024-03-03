@@ -17,7 +17,7 @@ class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var adapter: QuestionDetailListAdapter
     private lateinit var answerRef: DatabaseReference
 
-
+    private lateinit var favoritesRef: DatabaseReference
 
 
     private val eventListener = object : ChildEventListener {
@@ -99,13 +99,29 @@ class QuestionDetailActivity : AppCompatActivity() {
                 // --- ここまで ---
             }
         }
-/*
-        var isFavorite = false // お気に入りの状態を管理
+// お気に入りアイコンの初期表示を設定
+       // val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            val userId = user.uid
+            val questionId = question.questionUid
 
-        // ★マークの初期表示を設定
-        favoriteImageView = findViewById(R.id.favoriteImageView)
+            favoritesRef = FirebaseDatabase.getInstance().reference.child("favorites")
+            favoritesRef.child(userId).child(questionId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        // 質問がお気に入りに登録されている場合
+                        binding.favoriteImageView.setImageResource(R.drawable.ic_star)
+                    } else {
+                        // 質問がお気に入りに登録されていない場合
+                        binding.favoriteImageView.setImageResource(R.drawable.ic_star_border)
+                    }
+                }
 
-
+                override fun onCancelled(error: DatabaseError) {
+                    // データベースエラーの処理
+                }
+            })
+        }
         // お気に入りボタンが押されたときの処理
         binding.favoriteImageView.setOnClickListener {
             // ログイン済みのユーザ情報を取得
@@ -116,34 +132,32 @@ class QuestionDetailActivity : AppCompatActivity() {
                 return@setOnClickListener
             }
 
-            // お気に入り情報をFirebaseから取得
-            val favoriteRef = FirebaseDatabase.getInstance().reference
-                .child("favorites")
-                .child(user.uid) // ユーザーIDを指定する必要がある
-                .child("question_id")
+            val favoritesRef = FirebaseDatabase.getInstance().reference.child("favorites")
+            val userId = user.uid
+            val questionId = question.questionUid
 
-            favoriteRef.addListenerForSingleValueEvent(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    val isFavorite = dataSnapshot.exists()
+            favoritesRef.child(userId).child(questionId).addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
 
-                    // お気に入り登録されていない場合は登録
-                    if (!isFavorite) {
-                        favoriteRef.setValue(true)
-                        favoriteImageView.setImageResource(R.drawable.ic_star)
+                        // Question is already a favorite, remove it
+                        favoritesRef.child(userId).child(questionId).removeValue()
+                        binding.favoriteImageView.setImageResource(R.drawable.ic_star_border)
                     } else {
-                        // お気に入り登録済みの場合は削除
-                        favoriteRef.removeValue()
-                        favoriteImageView.setImageResource(R.drawable.ic_star_border)
+                        // Question is not a favorite, add it
+                        favoritesRef.child(userId).child(questionId).setValue(true)
+                        binding.favoriteImageView.setImageResource(R.drawable.ic_star)
                     }
                 }
 
-                override fun onCancelled(databaseError: DatabaseError) {
-                    // エラー処理
+                override fun onCancelled(error: DatabaseError) {
+                    // Handle database error
                 }
             })
-
         }
-*/
+
+
+
 
         val dataBaseReference = FirebaseDatabase.getInstance().reference
         answerRef = dataBaseReference.child(ContentsPATH).child(question.genre.toString())

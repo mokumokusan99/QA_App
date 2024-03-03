@@ -13,6 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import jp.techacademy.shunsuke.kino.qa_app.databinding.ActivityMainBinding
+import java.security.KeyStore.TrustedCertificateEntry
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private lateinit var binding: ActivityMainBinding
@@ -200,24 +201,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.nav_hobby -> {
                 binding.content.toolbar.title = getString(R.string.menu_hobby_label)
                 genre = 1
+                updateQuestionList()
             }
             R.id.nav_life -> {
                 binding.content.toolbar.title = getString(R.string.menu_life_label)
                 genre = 2
+                updateQuestionList()
             }
             R.id.nav_health -> {
                 binding.content.toolbar.title = getString(R.string.menu_health_label)
                 genre = 3
+                updateQuestionList()
             }
             R.id.nav_computer -> {
                 binding.content.toolbar.title = getString(R.string.menu_computer_label)
                 genre = 4
+                updateQuestionList()
+            }
+
+            R.id.nav_favorites -> {
+                binding.content.toolbar.title = getString(R.string.menu_favorites_label)
+                displayFavoriteQuestions()
+
             }
         }
 
         binding.drawerLayout.closeDrawer(GravityCompat.START)
 
-        // ----- 追加:ここから -----
+        return true
+    }
+
+    private fun updateQuestionList() {
         // 質問のリストをクリアしてから再度Adapterにセットし、AdapterをListViewにセットし直す
         questionArrayList.clear()
         adapter.setQuestionArrayList(questionArrayList)
@@ -229,11 +243,31 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
         genreRef = databaseReference.child(ContentsPATH).child(genre.toString())
         genreRef!!.addChildEventListener(eventListener)
-        // ----- 追加:ここまで -----
-
-
-        return true
     }
-    // ----- 追加:ここまで
+
+    private fun displayFavoriteQuestions() {
+        val user = FirebaseAuth.getInstance().currentUser
+        if (user != null) {
+            // お気に入りに登録された質問だけを取得する
+            val favoritesRef = FirebaseDatabase.getInstance().reference.child("favorites").child(user.uid)
+            favoritesRef.addListenerForSingleValueEvent(object : ValueEventListener {
+                override fun onDataChange(snapshot: DataSnapshot) {
+                    if (snapshot.exists()) {
+                        val favoriteQuestionIds = snapshot.children.mapNotNull { it.key }
+                        // 全ての質問からお気に入りに登録されている質問のみを抽出する
+                        val filteredQuestions =
+                            questionArrayList.filter { favoriteQuestionIds.contains(it.questionUid) }
+                        questionArrayList.clear()
+                        questionArrayList.addAll(filteredQuestions)
+                        adapter.notifyDataSetChanged()
+                    }
+                }
+
+                override fun onCancelled(error: DatabaseError) {
+                    // エラー処理
+                }
+            })
+        }
+    }
 
 }

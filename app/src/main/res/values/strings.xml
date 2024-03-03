@@ -28,6 +28,8 @@
     <string name="menu_health_label">健康</string>
     <string name="menu_computer_label">コンピューター</string>
 
+    <string name="menu_favorites_label">お気に入り</string>
+
     <!-- 設定画面用文字列 -->
     <string name="settings_title">設定</string>
     <string name="change_name_hint">表示名</string>
