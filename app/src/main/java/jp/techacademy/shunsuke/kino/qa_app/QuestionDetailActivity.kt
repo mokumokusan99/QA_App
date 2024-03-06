@@ -1,14 +1,18 @@
 package jp.techacademy.shunsuke.kino.qa_app
 
 import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.drawable.BitmapDrawable
 import android.os.Build
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Base64
 import android.view.View
 import android.widget.ImageView
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import jp.techacademy.shunsuke.kino.qa_app.databinding.ActivityQuestionDetailBinding
+import java.io.ByteArrayOutputStream
 
 class QuestionDetailActivity : AppCompatActivity() {
     private lateinit var binding: ActivityQuestionDetailBinding
@@ -111,9 +115,11 @@ class QuestionDetailActivity : AppCompatActivity() {
                     if (snapshot.exists()) {
                         // 質問がお気に入りに登録されている場合
                         binding.favoriteImageView.setImageResource(R.drawable.ic_star)
+                        favoriteImageView.visibility = View.VISIBLE
                     } else {
                         // 質問がお気に入りに登録されていない場合
                         binding.favoriteImageView.setImageResource(R.drawable.ic_star_border)
+                        favoriteImageView.visibility = View.VISIBLE
                     }
                 }
 
@@ -136,16 +142,28 @@ class QuestionDetailActivity : AppCompatActivity() {
             val userId = user.uid
             val questionId = question.questionUid
 
+
+
             favoritesRef.child(userId).child(questionId).addListenerForSingleValueEvent(object : ValueEventListener {
                 override fun onDataChange(snapshot: DataSnapshot) {
                     if (snapshot.exists()) {
-
-                        // Question is already a favorite, remove it
+                        // 質問がお気に入りに登録されている場合
+                        // お気に入りから削除
                         favoritesRef.child(userId).child(questionId).removeValue()
                         binding.favoriteImageView.setImageResource(R.drawable.ic_star_border)
                     } else {
-                        // Question is not a favorite, add it
-                        favoritesRef.child(userId).child(questionId).setValue(true)
+                        // 質問がお気に入りに登録されていない場合
+                        // お気に入りに追加
+
+                        val map = HashMap<String, Any>()
+                        map["questionUid"] = question.questionUid
+                        map["title"] = question.title
+                        map["body"] = question.body
+                        map["genre"] = question.genre
+                        val imageString: String = Base64.encodeToString(question.imageBytes, Base64.DEFAULT)
+                        map["image"] = imageString
+
+                        favoritesRef.child(userId).child(questionId).setValue(map)
                         binding.favoriteImageView.setImageResource(R.drawable.ic_star)
                     }
                 }

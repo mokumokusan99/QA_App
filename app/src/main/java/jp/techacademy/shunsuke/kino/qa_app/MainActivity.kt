@@ -172,7 +172,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
 
         // 1:趣味を既定の選択とする
-        if(genre == 0) {
+        if (genre == 0) {
             onNavigationItemSelected(navigationView.menu.getItem(0))
         }
     }
@@ -220,8 +220,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
 
             R.id.nav_favorites -> {
-                binding.content.toolbar.title = getString(R.string.menu_favorites_label)
-                displayFavoriteQuestions()
+                val intent = Intent(this, FavoriteQuestionsActivity::class.java)
+                startActivity(intent)
 
             }
         }
@@ -244,7 +244,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         genreRef = databaseReference.child(ContentsPATH).child(genre.toString())
         genreRef!!.addChildEventListener(eventListener)
     }
-
+}
+/*
     private fun displayFavoriteQuestions() {
         val user = FirebaseAuth.getInstance().currentUser
         if (user != null) {
@@ -271,3 +272,5 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
 }
+
+ */
