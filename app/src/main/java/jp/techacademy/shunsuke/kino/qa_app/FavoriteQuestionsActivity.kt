@@ -113,7 +113,7 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
         // Firebaseからデータを取得してリストに追加
         val user = FirebaseAuth.getInstance().currentUser
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-
+/*
         databaseReference.child("favorites").child(userUid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
@@ -170,8 +170,8 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
                     // エラー処理
                 }
             })
-
-//          favoritequestionArrayList.clear()
+*/
+          favoritequestionArrayList.clear()
           adapter.setFavoriteQuestionArrayList(favoritequestionArrayList)
           binding.content.inner.listView.adapter = adapter
 
