@@ -4,6 +4,7 @@ import android.content.Intent
 import android.os.Bundle
 import android.util.Base64
 import androidx.appcompat.app.AppCompatActivity
+import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.database.*
 import jp.techacademy.shunsuke.kino.qa_app.databinding.ActivityFavoriteQuestionsBinding
 
@@ -110,14 +111,17 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
         binding.content.inner.listView.adapter = adapter
 
         // Firebaseからデータを取得してリストに追加
-        databaseReference.child("favorites").child("uid")
+        val user = FirebaseAuth.getInstance().currentUser
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        databaseReference.child("favorites").child(userUid)
             .addValueEventListener(object : ValueEventListener {
                 override fun onDataChange(dataSnapshot: DataSnapshot) {
                     favoritequestionArrayList.clear() // リストを一度クリアしてからデータを追加する
                     for (snapshot in dataSnapshot.children) {
                         val questionUid = snapshot.key
                         // 質問のUIDを使って質問データを取得
-                        databaseReference.child("favorites").child("uid")
+                        databaseReference.child("favorites").child(userUid)
                             .addListenerForSingleValueEvent(object : ValueEventListener {
                                 override fun onDataChange(questionDataSnapshot: DataSnapshot) {
                                     val map = questionDataSnapshot.value as Map<*, *>
@@ -167,16 +171,17 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
                 }
             })
 
-//        favoritequestionArrayList.clear()
+//          favoritequestionArrayList.clear()
           adapter.setFavoriteQuestionArrayList(favoritequestionArrayList)
           binding.content.inner.listView.adapter = adapter
 
         // リスナーを登録する
-        if (favoritesRef != null) {
-            favoritesRef!!.removeEventListener(eventListener)
+        val userRef = databaseReference.child("favorites").child(userUid)
+        if (userRef != null) {
+            userRef!!.removeEventListener(eventListener)
         }
-        favoritesRef = databaseReference.child("favorites")
-        favoritesRef!!.addChildEventListener(eventListener)
+
+        userRef!!.addChildEventListener(eventListener)
 
 
 

@@ -53,10 +53,12 @@ class FavoriteQuestionsListAdapter (context: Context) : BaseAdapter() {
             binding.imageView.setImageBitmap(image)
         }
 
-        return view
+
+        return binding.root
     }
 
     fun setFavoriteQuestionArrayList(favoritequestionArrayList: ArrayList<FavoriteQuestion>) {
         this.favoritequestionArrayList = favoritequestionArrayList
+        notifyDataSetChanged()
     }
 }
