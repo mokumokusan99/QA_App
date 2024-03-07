@@ -7,7 +7,7 @@ class FavoriteQuestion(
     val title: String,
     val body: String,
     val name: String,
-    //val uid: Int,
+    val uid: String,
     val questionUid: String,
     val genre: String,
     bytes: ByteArray,
@@ -17,5 +17,13 @@ class FavoriteQuestion(
 
     init {
         imageBytes = bytes.clone()
+    }
+
+    fun toQuestion(): Question{
+        val genreInt = genre.toIntOrNull() ?: 0
+        return Question(
+            title, body, name, uid, questionUid,
+            genreInt, imageBytes, answers
+        )
     }
 }

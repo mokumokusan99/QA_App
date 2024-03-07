@@ -29,7 +29,7 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
             val title = map["title"] as? String ?: ""
             val body = map["body"] as? String ?: ""
             val name = map["name"] as? String ?: ""
-            //val uid = map["uid"] as? String ?: ""
+            val uid = map["uid"] as? String ?: ""
             val questionUid = map["questionUid"] as? String ?: ""
             val imageString = map["image"] as? String ?: ""
             val genre = map["genre"] as? String ?: ""
@@ -55,7 +55,7 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
             }
 
             val favoritequestion = FavoriteQuestion(
-                title, body, name,dataSnapshot.key ?: "",
+                title, body, name, uid,dataSnapshot.key ?: "",
                 genre, bytes, answerArrayList)
             favoritequestionArrayList.add(favoritequestion)
             adapter.notifyDataSetChanged()
@@ -108,7 +108,7 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
         // ListViewの準備
         adapter = FavoriteQuestionsListAdapter(this)
  //     favoritequestionArrayList = ArrayList()
-        binding.content.inner.listView.adapter = adapter
+        binding.content.listView.adapter = adapter
 
         // Firebaseからデータを取得してリストに追加
         val user = FirebaseAuth.getInstance().currentUser
@@ -171,9 +171,10 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
                 }
             })
 */
+
           favoritequestionArrayList.clear()
           adapter.setFavoriteQuestionArrayList(favoritequestionArrayList)
-          binding.content.inner.listView.adapter = adapter
+          binding.content.listView.adapter = adapter
 
         // リスナーを登録する
         val userRef = databaseReference.child("favorites").child(userUid)
@@ -186,11 +187,12 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
 
 
         // リストビューの項目がクリックされた時の処理
-        binding.content.inner.listView.setOnItemClickListener { _, _, position, _ ->
+        binding.content.listView.setOnItemClickListener { _, _, position, _ ->
             if (position < favoritequestionArrayList.size) {
                 // Questionのインスタンスを渡して質問詳細画面を起動する
                 val intent = Intent(applicationContext, QuestionDetailActivity::class.java)
-                intent.putExtra("question", favoritequestionArrayList[position])
+                val favoriteQuestion = favoritequestionArrayList[position].toQuestion()
+                intent.putExtra("question", favoriteQuestion)
                 startActivity(intent)
             } else {
                 // インデックスが範囲外の場合は何もしないか、エラーメッセージを表示するなどの適切な処理を行う

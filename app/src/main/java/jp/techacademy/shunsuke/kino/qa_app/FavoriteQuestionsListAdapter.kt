@@ -44,7 +44,7 @@ class FavoriteQuestionsListAdapter (context: Context) : BaseAdapter() {
 
         binding.titleTextView.text = favoritequestionArrayList[position].title
         binding.nameTextView.text = favoritequestionArrayList[position].name
-        binding.resTextView.text = favoritequestionArrayList[position].answers.size.toString()
+    //    binding.resTextView.text = favoritequestionArrayList[position].answers.size.toString()
 
         val bytes = favoritequestionArrayList[position].imageBytes
         if (bytes.isNotEmpty()) {
