@@ -110,67 +110,11 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
  //     favoritequestionArrayList = ArrayList()
         binding.content.listView.adapter = adapter
 
+        title = "お気に入り"
+
         // Firebaseからデータを取得してリストに追加
         val user = FirebaseAuth.getInstance().currentUser
         val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-/*
-        databaseReference.child("favorites").child(userUid)
-            .addValueEventListener(object : ValueEventListener {
-                override fun onDataChange(dataSnapshot: DataSnapshot) {
-                    favoritequestionArrayList.clear() // リストを一度クリアしてからデータを追加する
-                    for (snapshot in dataSnapshot.children) {
-                        val questionUid = snapshot.key
-                        // 質問のUIDを使って質問データを取得
-                        databaseReference.child("favorites").child(userUid)
-                            .addListenerForSingleValueEvent(object : ValueEventListener {
-                                override fun onDataChange(questionDataSnapshot: DataSnapshot) {
-                                    val map = questionDataSnapshot.value as Map<*, *>
-                                    val title = map["title"] as? String ?: ""
-                                    val body = map["body"] as? String ?: ""
-                                    val name = map["name"] as? String ?: ""
-                                    val questionUid = map["questionUid"] as? String ?: ""
-                                    val imageString = map["image"] as? String ?: ""
-                                    val genre = map["genre"] as? String ?:""
-                                    val bytes =
-                                        if (imageString.isNotEmpty()) {
-                                            Base64.decode(imageString, Base64.DEFAULT)
-                                        } else {
-                                            byteArrayOf()
-                                        }
-
-                                    val answerArrayList = ArrayList<Answer>()
-                                    val answerMap = map["answers"] as Map<*, *>?
-                                    if (answerMap != null) {
-                                        for (key in answerMap.keys) {
-                                            val map1 = answerMap[key] as Map<*, *>
-                                            val map1Body = map1["body"] as? String ?: ""
-                                            val map1Name = map1["name"] as? String ?: ""
-                                            val map1Uid = map1["uid"] as? String ?: ""
-                                            val map1AnswerUid = key as? String ?: ""
-                                            val answer = Answer(map1Body, map1Name, map1Uid, map1AnswerUid)
-                                            answerArrayList.add(answer)
-                                        }
-                                    }
-
-                                    val favoritequestion = FavoriteQuestion(
-                                        title, body, name,dataSnapshot.key ?: "",
-                                        genre, bytes, answerArrayList)
-                                    favoritequestionArrayList.add(favoritequestion)
-                                    adapter.notifyDataSetChanged() // データが更新されたことをAdapterに通知する
-                                }
-
-                                override fun onCancelled(databaseError: DatabaseError) {
-                                    // エラー処理
-                                }
-                            })
-                    }
-                }
-
-                override fun onCancelled(databaseError: DatabaseError) {
-                    // エラー処理
-                }
-            })
-*/
 
           favoritequestionArrayList.clear()
           adapter.setFavoriteQuestionArrayList(favoritequestionArrayList)
@@ -199,7 +143,31 @@ class FavoriteQuestionsActivity : AppCompatActivity() {
                 // ここでは何もしない
             }
         }
+
     }
+
+    override fun onResume() {
+        super.onResume()
+        updateData()
+    }
+    private fun updateData() {
+        favoritequestionArrayList.clear()
+        // お気に入りの質問IDを取得
+        val userUid = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+
+        favoritequestionArrayList.clear()
+        adapter.setFavoriteQuestionArrayList(favoritequestionArrayList)
+        binding.content.listView.adapter = adapter
+
+        // リスナーを登録する
+        val userRef = databaseReference.child("favorites").child(userUid)
+        if (userRef != null) {
+            userRef!!.removeEventListener(eventListener)
+        }
+
+        userRef!!.addChildEventListener(eventListener)
+    }
+
 }
 /*
         override fun onResume() {
